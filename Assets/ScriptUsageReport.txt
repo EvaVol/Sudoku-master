@@ -1,0 +1,27 @@
+Script Usage Report
+Generated: 23.02.2026 17:43:01
+
+Total scripts (Assets): 13
+Scanned assets (scenes/prefabs/SO): 13
+Used scripts (by dependencies): 8
+Unused scripts (candidate): 4
+Editor scripts (ignored): 1
+
+=== USED ===
+Assets/Scripts/Board.cs
+Assets/Scripts/DifficultySlider.cs
+Assets/Scripts/InputButton.cs
+Assets/Scripts/Layout.cs
+Assets/Scripts/PlayButton.cs
+Assets/Scripts/SudokuCell.cs
+Assets/Scripts/SudokuGridFitToContainer.cs
+Assets/Scripts/TimerCountUp.cs
+
+=== UNUSED (candidate) ===
+Assets/Scripts/PlayerSettings.cs
+Assets/Scripts/SudokuGridAutoSizer.cs
+Assets/Scripts/SudokuGridSizerUI.cs
+Assets/Scripts/SudokuKeyboardInput.cs
+
+=== IGNORED (Editor folder) ===
+Assets/Editor/ScriptUsageScanner.cs.cs
