@@ -28,7 +28,18 @@ public class SudokuGridFitToContainer : MonoBehaviour
 
     public void Apply()
     {
-        if (container == null || sizer == null) return;
+        if (container == null) return;
+
+        // Pokud SudokuGridSizerUI není přidaný jako komponent na stejném objektu,
+        // tak se tato část škálování nepoužije (je to volitelné / z dřívější verze).
+        if (sizer == null)
+        {
+#if UNITY_EDITOR
+            // Volitelné: můžeš odkomentovat, pokud chceš vidět varování v editoru
+            // Debug.LogWarning("SudokuGridSizerUI component not found - grid sizing via sizer is disabled.", this);
+#endif
+            return;
+        }
 
         float available = Mathf.Min(container.rect.width, container.rect.height) - margin * 2f;
         sizer.gridSize = Mathf.Clamp(available, minGridSize, maxGridSize);
