@@ -314,48 +314,48 @@ public class Board : MonoBehaviour
     }
 
 
-/*    bool SolveSudoku()
-    {
-        int row = 0;
-        int col = 0;
-
-        if (IsValid())
+    /*    bool SolveSudoku()
         {
-            return true;
-        }
+            int row = 0;
+            int col = 0;
 
-        for (int i = 0; i < 25; i++)
-        {
-            for (int j = 0; j < 25; j++)
+            if (IsValid())
             {
-                if (grid[i, j] == 0)
+                return true;
+            }
+
+            for (int i = 0; i < 25; i++)
+            {
+                for (int j = 0; j < 25; j++)
                 {
-                    row = i;
-                    col = j;
+                    if (grid[i, j] == 0)
+                    {
+                        row = i;
+                        col = j;
+                    }
                 }
             }
-        }
 
-        for (int i = 1; i <=25; i++)
-        {
-            if (CheckAll(row, col, i)) {
-                grid[row, col] = i;
-                //ConsoleOutputGrid(grid);
-                
-                if (SolveSudoku())
-                {
-                    return true;
-                }
-                else
-                {
-                    grid[row, col] = 0;
+            for (int i = 1; i <=25; i++)
+            {
+                if (CheckAll(row, col, i)) {
+                    grid[row, col] = i;
+                    //ConsoleOutputGrid(grid);
+
+                    if (SolveSudoku())
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        grid[row, col] = 0;
+                    }
                 }
             }
-        }
-        return false;
-    }*/
+            return false;
+        }*/
 
-    void CreatePuzzle()
+    /*void CreatePuzzle()
     {
         
             // zkopíruj řešení do puzzle
@@ -405,9 +405,56 @@ public class Board : MonoBehaviour
             holesToMake--;
         }
         
-        ConsoleOutputGrid(puzzle);*/
+        ConsoleOutputGrid(puzzle);
 
+    }*/
+
+    void CreatePuzzle()
+    {
+        System.Array.Copy(grid, puzzle, grid.Length);
+
+        int side = 25;
+        int total = side * side;
+
+        int pct = Mathf.Clamp(PlayerSettings.difficulty, 0, 100);
+        int holesTarget = Mathf.RoundToInt(pct / 100f * total);
+
+        List<int> cells = new List<int>();
+        for (int i = 0; i < total; i++) cells.Add(i);
+        RandomizeList(cells);
+
+        int holesMade = 0;
+
+        foreach (int k in cells)
+        {
+            if (holesMade >= holesTarget)
+                break;
+
+            int r = k / side;
+            int c = k % side;
+
+            int backup = puzzle[r, c];
+            puzzle[r, c] = 0;
+
+            int[,] testBoard = new int[side, side];
+            System.Array.Copy(puzzle, testBoard, puzzle.Length);
+
+            int solutions = CountSolutions(testBoard, 2);
+
+            if (solutions != 1)
+            {
+                puzzle[r, c] = backup;
+            }
+            else
+            {
+                holesMade++;
+            }
+        }
+
+        ConsoleOutputGrid(puzzle);
     }
+
+
 
     void RandomizeList(List<int> l)
     {
@@ -422,7 +469,108 @@ public class Board : MonoBehaviour
         }
     }
 
-        void CreateButtons()
+    bool IsValidMove(int[,] board, int row, int col, int value)
+    {
+        for (int i = 0; i < 25; i++)
+        {
+            if (board[row, i] == value) return false;
+            if (board[i, col] == value) return false;
+        }
+
+        int boxRow = (row / 5) * 5;
+        int boxCol = (col / 5) * 5;
+
+        for (int r = 0; r < 5; r++)
+            for (int c = 0; c < 5; c++)
+                if (board[boxRow + r, boxCol + c] == value)
+                    return false;
+
+        return true;
+    }
+
+    int CountSolutions(int[,] board, int limit = 2)
+    {
+        int count = 0;
+        SolveAndCount(board, ref count, limit);
+        return count;
+    }
+
+    bool SolveAndCount(int[,] board, ref int count, int limit)
+    {
+        if (count >= limit)
+            return true;
+
+        int row = -1;
+        int col = -1;
+
+        if (!FindBestCell(board, ref row, ref col))
+        {
+            // žádná prázdná buňka → máme řešení
+            count++;
+            return false;
+        }
+
+        for (int v = 1; v <= 25; v++)
+        {
+            if (IsValidMove(board, row, col, v))
+            {
+                board[row, col] = v;
+                SolveAndCount(board, ref count, limit);
+                board[row, col] = 0;
+
+                if (count >= limit)
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool FindBestCell(int[,] board, ref int bestRow, ref int bestCol)
+    {
+        int minOptions = int.MaxValue;
+        bool found = false;
+
+        for (int r = 0; r < 25; r++)
+        {
+            for (int c = 0; c < 25; c++)
+            {
+                if (board[r, c] != 0)
+                    continue;
+
+                int options = CountCandidates(board, r, c);
+
+                if (options == 0)
+                    return false; // slepá větev
+
+                if (options < minOptions)
+                {
+                    minOptions = options;
+                    bestRow = r;
+                    bestCol = c;
+                    found = true;
+
+                    if (minOptions == 1)
+                        return true; // lepší už nebude
+                }
+            }
+        }
+
+        return found;
+    }
+
+    int CountCandidates(int[,] board, int row, int col)
+    {
+        int count = 0;
+
+        for (int v = 1; v <= 25; v++)
+            if (IsValidMove(board, row, col, v))
+                count++;
+
+        return count;
+    }
+
+    void CreateButtons()
     {
         for (int i = 0; i < 25; i++)
         {
